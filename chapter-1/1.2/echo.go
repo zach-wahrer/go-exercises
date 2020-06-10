@@ -8,7 +8,7 @@ import (
 
 func main() {
 	var string, seperator string
-	for i := 1; i < len(os.Args); i++ {
+	for i := 0; i < len(os.Args); i++ {
 		string += seperator + os.Args[i]
 		seperator = " "
 	}
