@@ -3,24 +3,23 @@ package main
 
 import (
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"os"
 )
 
 func main() {
 	for _, url := range os.Args[1:] {
-		response, err := http.Get(url)
-		if err != nil {
-			fmt.Fprintf(os.Stderr, "fetch: %v\n", err)
+		response, getError := http.Get(url)
+		if getError != nil {
+			fmt.Fprintf(os.Stderr, "fetch: %v\n", getError)
 			os.Exit(1)
 		}
-		body, err := ioutil.ReadAll(response.Body)
+		_, parseError := io.Copy(os.Stdout, response.Body)
 		response.Body.Close()
-		if err != nil {
-			fmt.Fprintf(os.Stderr, "fetch: reading %s: %v\n", url, err)
+		if parseError != nil {
+			fmt.Fprintf(os.Stderr, "fetch: reading %s: %v\n", url, parseError)
 			os.Exit(1)
 		}
-		fmt.Printf("%s", body)
 	}
 }
