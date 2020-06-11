@@ -19,6 +19,7 @@ func main() {
 			fmt.Fprintf(os.Stderr, "fetch: %v\n", getError)
 			os.Exit(1)
 		}
+		fmt.Println("Status Code: ", response.Status)
 		_, parseError := io.Copy(os.Stdout, response.Body)
 		response.Body.Close()
 		if parseError != nil {
