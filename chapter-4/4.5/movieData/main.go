@@ -27,6 +27,9 @@ func main() {
 	}
 
 	if string(input) == "y" {
-
+		if err := Download(movie.Title, movie.Poster); err != nil {
+			log.Fatal(err)
+		}
+		fmt.Println("Poster downloaded successfully.")
 	}
 }
