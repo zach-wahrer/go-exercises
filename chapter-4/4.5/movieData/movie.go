@@ -2,7 +2,7 @@ package main
 
 type Movie struct {
 	Title   string
-	Year    int
+	Year    string
 	Rated   string
 	Runtime string
 	Genre   string
