@@ -14,11 +14,11 @@ func main() {
 		log.Fatal(err)
 	}
 
-	fmt.Printf("%s | %s | %s | %s | %s\n",
-		movie.Title, movie.Year, movie.Rated, movie.Runtime, movie.Genre)
+	if err := output.Execute(os.Stdout, movie); err != nil {
+		log.Fatal(err)
+	}
 
 	fmt.Printf("Download poster (y/n): ")
-
 	reader := bufio.NewReader(os.Stdin)
 	input, _, err := reader.ReadRune()
 
