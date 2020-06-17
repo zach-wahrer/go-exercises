@@ -14,7 +14,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	fmt.Printf("%s\t| %s | %s | %s | %s\n",
+	fmt.Printf("%s | %s | %s | %s | %s\n",
 		movie.Title, movie.Year, movie.Rated, movie.Runtime, movie.Genre)
 
 	fmt.Printf("Download poster (y/n): ")
