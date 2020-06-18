@@ -17,7 +17,18 @@ func main() {
 	file := openFile(os.Args[1])
 	head := parseHTML(file)
 	file.Close()
-	fmt.Println(head.FirstChild.NextSibling.Type)
+	elements := make(map[string]int)
+	traverseNode(elements, head)
+	fmt.Println(elements)
+}
+
+func traverseNode(elements map[string]int, n *html.Node) {
+	if n.Type == html.ElementNode {
+		elements[n.Data]++
+	}
+	for c := n.FirstChild; c != nil; c = c.NextSibling {
+		traverseNode(elements, c)
+	}
 }
 
 func parseHTML(file *os.File) *html.Node {
