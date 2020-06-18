@@ -8,6 +8,7 @@ import (
 	"log"
 	"math"
 	"os"
+	"sort"
 
 	"golang.org/x/net/html"
 )
@@ -45,12 +46,20 @@ func printOutput(elements map[string]int) {
 	longestLen := getLongestLen(elements)
 	totalElements := 0
 	fmt.Printf("Element Count:\n")
-	for name, count := range elements {
-		fmt.Printf("%s%*s %d\n", name, longestLen-len(name), "", count)
-		totalElements += count
+	for _, name := range sortedKeys(elements) {
+		fmt.Printf("%s%*s %d\n", name, longestLen-len(name), "", elements[name])
+		totalElements += elements[name]
 	}
 	fmt.Printf("Total Elements: %*s%d\n", int(math.Max(float64(longestLen-15), 0)), "", totalElements)
 
+}
+
+func sortedKeys(elements map[string]int) (sortedKeys []string) {
+	for element := range elements {
+		sortedKeys = append(sortedKeys, element)
+	}
+	sort.Strings(sortedKeys)
+	return sortedKeys
 }
 
 func getLongestLen(elements map[string]int) (length int) {
