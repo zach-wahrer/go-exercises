@@ -5,9 +5,11 @@ package main
 import (
 	"errors"
 	"fmt"
-	"golang.org/x/net/html"
 	"log"
+	"math"
 	"os"
+
+	"golang.org/x/net/html"
 )
 
 func main() {
@@ -19,7 +21,7 @@ func main() {
 	file.Close()
 	elements := make(map[string]int)
 	traverseNode(elements, head)
-	fmt.Println(elements)
+	printOutput(elements)
 }
 
 func traverseNode(elements map[string]int, n *html.Node) {
@@ -37,6 +39,27 @@ func parseHTML(file *os.File) *html.Node {
 		errorOut(err)
 	}
 	return node
+}
+
+func printOutput(elements map[string]int) {
+	longestLen := getLongestLen(elements)
+	totalElements := 0
+	fmt.Printf("Element Count:\n")
+	for name, count := range elements {
+		fmt.Printf("%s%*s %d\n", name, longestLen-len(name), "", count)
+		totalElements += count
+	}
+	fmt.Printf("Total Elements: %*s%d\n", int(math.Max(float64(longestLen-15), 0)), "", totalElements)
+
+}
+
+func getLongestLen(elements map[string]int) (length int) {
+	for element := range elements {
+		if len(element) > length {
+			length = len(element)
+		}
+	}
+	return length
 }
 
 func openFile(filename string) *os.File {
