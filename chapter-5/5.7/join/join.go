@@ -20,8 +20,7 @@ func Join(sep string, strings ...string) string {
 		return strings[0]
 	}
 
-	var buf []byte
-	buffer := bytes.NewBuffer(buf)
+	var buffer bytes.Buffer
 	for i, value := range strings {
 		buffer.Write([]byte(value))
 		if i != len(strings)-1 {
