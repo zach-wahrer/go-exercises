@@ -14,16 +14,16 @@ func main() {
 }
 
 func TypeTest(x interface{}) string {
-	if x == nil {
+	switch x.(type) {
+	case nil:
 		return "Nil"
-	} else if _, ok := x.(int); ok {
+	case int:
 		return "Int"
-	} else if _, ok := x.(string); ok {
+	case string:
 		return "String"
-	} else if _, ok := x.(bool); ok {
+	case bool:
 		return "Bool"
-	} else {
+	default:
 		return "Unrecognized"
 	}
-
 }
