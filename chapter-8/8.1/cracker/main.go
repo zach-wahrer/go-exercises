@@ -3,6 +3,7 @@ package main
 import (
 	"crypto/md5"
 	"fmt"
+	"math"
 	"time"
 )
 
@@ -11,12 +12,13 @@ const alphabet = "abcdefghijklmnopqrstuvwxyz1234567890"
 func main() {
 	go waiting(100 * time.Millisecond)
 
-	testPass := encrypter("1aezxm")
-	targetLen := 6
+	targetString := "gh0"
+	testPass := encrypter(targetString)
+	targetLen := len(targetString)
 
 	out := make(chan string)
 
-	chunkSize := int(len(alphabet) / 6)
+	chunkSize := int(math.Max(float64(len(alphabet)/6), 1))
 	start, end := 0, chunkSize
 	for i := 0; i < chunkSize; i++ {
 		if i == chunkSize-1 {
@@ -27,9 +29,19 @@ func main() {
 		start, end = end, end+chunkSize
 	}
 
+	running := chunkSize
 	for reply := range out {
-		fmt.Printf("\tPassword found: %s\n", reply)
-		break
+		if reply == "" {
+			running--
+		} else {
+			fmt.Printf("Password found: %s\n", reply)
+			break
+		}
+
+		if running == 0 {
+			fmt.Println("Password not found.")
+			break
+		}
 	}
 
 }
@@ -38,11 +50,11 @@ func cracker(start, finish, targetLen int, target [16]byte, out chan<- string) {
 	for _, char1 := range alphabet[start:finish] {
 		if passEqual(string(char1), target) {
 			out <- string(char1)
-			break
-		} else {
-			recursiveCrack(string(char1), 2, targetLen, target, out)
+			return
 		}
+		recursiveCrack(string(char1), 2, targetLen, target, out)
 	}
+	out <- ""
 	return
 }
 
@@ -53,9 +65,7 @@ func recursiveCrack(chars string, currLen, targetLen int, target [16]byte, out c
 				out <- chars + string(char)
 				return
 			}
-
 			recursiveCrack(chars+string(char), currLen+1, targetLen, target, out)
-
 		}
 	}
 	return
