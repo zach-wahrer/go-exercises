@@ -10,14 +10,20 @@ const alphabet = "abcdefghijklmnopqrstuvwxyz1234567890"
 
 func main() {
 	go waiting(100 * time.Millisecond)
-	testPass := encrypter("o12zab")
-	go cracker(0, 6, testPass)
-	go cracker(6, 12, testPass)
-	go cracker(12, 18, testPass)
-	go cracker(18, 24, testPass)
-	go cracker(24, 30, testPass)
-	cracker(30, len(alphabet), testPass)
+	testPass := encrypter("5aaaaa")
 
+	chunkSize := int(len(alphabet) / 6)
+	start := 0
+	end := chunkSize
+	for i := 0; i < chunkSize; i++ {
+		if i == chunkSize-1 {
+			// go cracker(start, len(alphabet), testPass)
+		} else {
+			go cracker(start, end, testPass)
+		}
+		start, end = end, end+chunkSize
+	}
+	cracker(30, len(alphabet), testPass)
 }
 
 func cracker(start, finish int, target [16]byte) {
