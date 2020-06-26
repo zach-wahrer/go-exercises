@@ -4,7 +4,6 @@ import (
 	"crypto/md5"
 	"fmt"
 	"math"
-	"os"
 	"time"
 )
 
@@ -44,12 +43,12 @@ func main() {
 		select {
 		case reply := <-channels.found:
 			fmt.Printf("Password found: %s\n", reply)
-			os.Exit(0)
+			return
 		case <-channels.notFound:
 			running--
 			if running == 0 {
 				fmt.Println("Password not found.")
-				os.Exit(0)
+				return
 			}
 		}
 	}
@@ -78,7 +77,6 @@ func recursiveCrack(chars string, currLen int, targetPass target, channels comms
 		}
 	}
 	return
-
 }
 
 func passEqual(pass string, target [16]byte) bool {
