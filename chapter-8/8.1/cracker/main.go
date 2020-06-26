@@ -7,65 +7,65 @@ import (
 	"time"
 )
 
-const alphabet = "abcdefghijklmnopqrstuvwxyz1234567890"
+const alphabet = "abcdefghijklmnopqrstuvwxyz1234567890@$."
 
 func main() {
 	go waiting(100 * time.Millisecond)
 
-	targetString := "gh0"
+	targetString := "@.ax."
 	testPass := encrypter(targetString)
 	targetLen := len(targetString)
 
-	out := make(chan string)
+	found := make(chan string)
+	notFound := make(chan struct{})
 
 	chunkSize := int(math.Max(float64(len(alphabet)/6), 1))
 	start, end := 0, chunkSize
 	for i := 0; i < chunkSize; i++ {
 		if i == chunkSize-1 {
-			go cracker(start, len(alphabet), targetLen, testPass, out)
+			go cracker(start, len(alphabet), targetLen, testPass, found, notFound)
 		} else {
-			go cracker(start, end, targetLen, testPass, out)
+			go cracker(start, end, targetLen, testPass, found, notFound)
 		}
 		start, end = end, end+chunkSize
 	}
 
 	running := chunkSize
-	for reply := range out {
-		if reply == "" {
-			running--
-		} else {
-			fmt.Printf("Password found: %s\n", reply)
-			break
-		}
-
+	select {
+	case reply := <-found:
+		fmt.Printf("Password found: %s\n", reply)
+		break
+	case <-notFound:
+		running--
 		if running == 0 {
 			fmt.Println("Password not found.")
 			break
 		}
+
 	}
 
 }
 
-func cracker(start, finish, targetLen int, target [16]byte, out chan<- string) {
+func cracker(start, finish, targetLen int, target [16]byte, found chan<- string, notFound chan<- struct{}) {
 	for _, char1 := range alphabet[start:finish] {
 		if passEqual(string(char1), target) {
-			out <- string(char1)
+			found <- string(char1)
 			return
 		}
-		recursiveCrack(string(char1), 2, targetLen, target, out)
+		recursiveCrack(string(char1), 2, targetLen, target, found)
 	}
-	out <- ""
+	notFound <- struct{}{}
 	return
 }
 
-func recursiveCrack(chars string, currLen, targetLen int, target [16]byte, out chan<- string) {
+func recursiveCrack(chars string, currLen, targetLen int, target [16]byte, found chan<- string) {
 	if currLen <= targetLen {
 		for _, char := range alphabet {
 			if passEqual(chars+string(char), target) {
-				out <- chars + string(char)
+				found <- chars + string(char)
 				return
 			}
-			recursiveCrack(chars+string(char), currLen+1, targetLen, target, out)
+			recursiveCrack(chars+string(char), currLen+1, targetLen, target, found)
 		}
 	}
 	return
