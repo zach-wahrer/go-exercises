@@ -26,9 +26,9 @@ func main() {
 	start, end := 0, chunkSize
 	for i := 0; i < chunkSize; i++ {
 		if i == chunkSize-1 {
-			go cracker(start, len(alphabet), targetPass, out)
+			go crackChunk(start, len(alphabet), targetPass, out)
 		} else {
-			go cracker(start, end, targetPass, out)
+			go crackChunk(start, end, targetPass, out)
 		}
 		start, end = end, end+chunkSize
 	}
@@ -50,7 +50,7 @@ func main() {
 
 }
 
-func cracker(start, finish int, targetPass target, out chan<- string) {
+func crackChunk(start, finish int, targetPass target, out chan<- string) {
 	for _, char1 := range alphabet[start:finish] {
 		if passEqual(string(char1), targetPass.hashedPass) {
 			out <- string(char1)
