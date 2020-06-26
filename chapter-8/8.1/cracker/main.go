@@ -9,12 +9,16 @@ import (
 
 const alphabet = "abcdefghijklmnopqrstuvwxyz1234567890"
 
+type target struct {
+	hashedPass [16]byte
+	maxLen     int
+}
+
 func main() {
 	go waiting(100 * time.Millisecond)
 
 	targetString := "gh0"
-	testPass := encrypter(targetString)
-	targetLen := len(targetString)
+	targetPass := target{encrypter(targetString), len(targetString)}
 
 	out := make(chan string)
 
@@ -22,9 +26,9 @@ func main() {
 	start, end := 0, chunkSize
 	for i := 0; i < chunkSize; i++ {
 		if i == chunkSize-1 {
-			go cracker(start, len(alphabet), targetLen, testPass, out)
+			go cracker(start, len(alphabet), targetPass, out)
 		} else {
-			go cracker(start, end, targetLen, testPass, out)
+			go cracker(start, end, targetPass, out)
 		}
 		start, end = end, end+chunkSize
 	}
@@ -46,26 +50,26 @@ func main() {
 
 }
 
-func cracker(start, finish, targetLen int, target [16]byte, out chan<- string) {
+func cracker(start, finish int, targetPass target, out chan<- string) {
 	for _, char1 := range alphabet[start:finish] {
-		if passEqual(string(char1), target) {
+		if passEqual(string(char1), targetPass.hashedPass) {
 			out <- string(char1)
 			return
 		}
-		recursiveCrack(string(char1), 2, targetLen, target, out)
+		recursiveCrack(string(char1), 2, targetPass, out)
 	}
 	out <- ""
 	return
 }
 
-func recursiveCrack(chars string, currLen, targetLen int, target [16]byte, out chan<- string) {
-	if currLen <= targetLen {
+func recursiveCrack(chars string, currLen int, targetPass target, out chan<- string) {
+	if currLen <= targetPass.maxLen {
 		for _, char := range alphabet {
-			if passEqual(chars+string(char), target) {
+			if passEqual(chars+string(char), targetPass.hashedPass) {
 				out <- chars + string(char)
 				return
 			}
-			recursiveCrack(chars+string(char), currLen+1, targetLen, target, out)
+			recursiveCrack(chars+string(char), currLen+1, targetPass, out)
 		}
 	}
 	return
